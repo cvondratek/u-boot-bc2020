@@ -44,21 +44,24 @@
         "loadaddr=0x80200000\0" \
         "addrDTB=0x815f0000\0" \
         "addrIMG=0x80300000\0" \
-        "fnDTB=am335x-bcb.dtb\0" \
+        "addrSFS=0x82000000\0" \
+        "fnDTB=am335x-boneblack.dtb\0" \
         "fnIMG=zImage\0" \
         "fnSFS=bcbuildr_rootfs.squash\0" \
         "args_spifast=set-by-bcximgbuild\0" \
         "args_tftpusb=set-by-bcximgbuild\0" \
+	"args_ramroot=root=/dev/ram0 rw ramdisk_size=65536 initrd=0x82000000,64M rootfstype=squashfs\0" \
         "args_std=console=ttyO0,115200n8 earlyprintk=serial,ttyO0,115200 consoleblank=0 panic=10\0" \
         "boot_spifast=sf read ${addrDTB} ${b2} ${s2};sf read ${addrIMG} ${b3} ${s3};setenv bootargs ${args_spifast} ${args_std}; bootz ${addrIMG} - ${addrDTB};\0" \
-        "boot_tftpusb=run tftp_setup; tftpboot ${addrDTB} ${fnDTB}; tftpboot ${addrIMG} ${fnIMG}; tftpboot ${loadaddr} ${fnSFS}; setenv bootargs ${args_tftpusb} ${args_std}; bootz ${addrIMG} - ${addrDTB};\0" \
+        "boot_tftpusb=run tftp_setup; tftpboot ${addrDTB} ${fnDTB}; tftpboot ${addrIMG} ${fnIMG}; tftpboot ${addrSFS} ${fnSFS}; setenv bootargs ${args_tftpusb} ${args_std}; bootz ${addrIMG} - ${addrDTB};\0" \
+        "boot_sd=fatload mmc 0 ${addrDTB} ${fnDTB}; fatload mmc 0 ${addrIMG} ${fnIMG}; fatload mmc 0 ${addrSFS} ${fnSFS}; setenv bootargs ${args_ramroot} ${args_std}; bootz ${addrIMG} - ${addrDTB};\0" \
         "tftp_setup=setenv usbnet_devaddr aa:bb:cc:dd:ee:ff; setenv serverip 169.254.99.1; setenv ipaddr 169.254.99.10;\0" \
-        "tftp_flash=run tftp_setup; tftpboot ${loadaddr} bcmax_boot.img; sf probe 0; sf update ${loadaddr} 0 ${filesize};\0" \
+        "tftp_flash=run tftp_setup; tftpboot ${loadaddr} bcbuildr_boot.img; sf probe 0; sf update ${loadaddr} 0 ${filesize};\0" \
         "spi_ok=run boot_spifast;\0" \
         "spi_bad=run boot_tftpusb;\0" \
         "test_spi=sf probe 0; sf read 80200000 0 1; mw.b 80200001 ff; if cmp.b 80200000 80200001 1; then run spi_bad; else run spi_ok; fi;\0"\
-        "bc_boot=run test_spi;\0" \
-        "import_env=sf probe 0; *todo failover to emmc fatload*; sf read ${loadaddr} 0x00ff0000 0x10000; env import -t ${loadaddr} 0x10000;\0"
+        "bc_boot=run boot_sd;\0" \
+        "import_env=echo TODO env import fixup for emmc;\0"
 #define CONFIG_BOOTCOMMAND  "run import_env; run bc_boot;" 
 #endif
 
