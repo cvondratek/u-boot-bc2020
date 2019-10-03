@@ -1,0 +1,17 @@
+if TARGET_AM335X_EVM_BCB
+
+config SYS_BOARD
+	default "am335x_bcb"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_SOC
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	default "am335x_evm_bcb"
+
+source "board/ti/common/Kconfig"
+
+endif
